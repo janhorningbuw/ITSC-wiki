@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Update index.json
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 jobs:
-  build-and-deploy:
+  generate-index:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -24,14 +24,3 @@ jobs:
           git add docs/index.json
           git diff --cached --quiet || git commit -m "Auto: index.json aktualisiert"
           git push
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          include_files: |
-            index.html
-            style.css
-            script.js
-            docs/**
