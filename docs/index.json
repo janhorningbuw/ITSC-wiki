@@ -1,8 +1,9 @@
 [
-  {"name":"Willkommen","file":"willkommen.html","type":"html","description":"Einführung ins ITSC-Wiki","tags":["start","hilfe"],"size":511},
-  {"name":"Pizza Margherita","file":"margherita.html","type":"html","description":"Klassisches Rezept mit Tomaten und Mozzarella","tags":["pizza","klassisch"],"size":2106},
-  {"name":"Pizza Diavola","file":"diavola.html","type":"html","description":"Scharfe Pizza mit Salami Piccante","tags":["pizza","scharf"],"size":2024},
-  {"name":"Pizza Quattro Formaggi","file":"quattro-formaggi.html","type":"html","description":"Vier-Käse-Pizza mit Gorgonzola und Parmesan","tags":["pizza","käse"],"size":2013},
-  {"name":"Pizza Prosciutto e Funghi","file":"prosciutto-funghi.html","type":"html","description":"Pizza mit Kochschinken und Champignons","tags":["pizza","schinken"],"size":2004},
-  {"name":"Pizza Teig Grundrezept (PDF)","file":"teig-grundrezept.pdf","type":"pdf","description":"Grundrezept für Pizzateig als PDF","tags":["pizza","teig","pdf"],"size":1990}
+  {"name":"diavola","file":"diavola.html","type":"html","description":"","tags":[],"size":2024,"date":"2026-08-20"},
+  {"name":"margherita","file":"margherita.html","type":"html","description":"","tags":[],"size":2106,"date":"2026-08-20"},
+  {"name":"prosciutto funghi","file":"prosciutto-funghi.html","type":"html","description":"","tags":[],"size":2004,"date":"2026-08-20"},
+  {"name":"quattro formaggi","file":"quattro-formaggi.html","type":"html","description":"","tags":[],"size":2013,"date":"2026-08-20"},
+  {"name":"willkommen","file":"willkommen.html","type":"html","description":"","tags":[],"size":511,"date":"2026-08-20"},
+  {"name":"(2,1) QuasiModo Tree.drawio","file":"(2,1)-QuasiModo Tree.drawio.pdf","type":"pdf","description":"","tags":[],"size":12904,"date":"2026-08-20"},
+  {"name":"teig grundrezept","file":"teig-grundrezept.pdf","type":"pdf","description":"","tags":[],"size":1990,"date":"2026-08-20"}
 ]
