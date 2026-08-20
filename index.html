@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ITSC-Wiki</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>ITSC-Wiki</h1>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Dokumente durchsuchen..." autocomplete="off">
+      <button id="searchBtn">Suchen</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="file-list-section">
+      <h2>Dokumente</h2>
+      <ul id="fileList"></ul>
+      <p id="noResults" class="hidden">Keine Ergebnisse gefunden.</p>
+    </section>
+
+    <section id="viewerSection" class="hidden">
+      <div class="viewer-header">
+        <h2 id="viewerTitle"></h2>
+        <button id="closeViewer">Schließen</button>
+      </div>
+      <div id="viewerContent"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2026 ITSC-Wiki</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

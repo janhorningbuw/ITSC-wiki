@@ -1,0 +1,182 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: #1a1a2e;
+  color: #fff;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.search-container {
+  display: flex;
+  gap: 0.5rem;
+}
+
+#searchInput {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  width: 280px;
+  font-size: 0.95rem;
+}
+
+#searchBtn {
+  padding: 0.5rem 1.2rem;
+  background: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+#searchBtn:hover {
+  background: #c73650;
+}
+
+main {
+  flex: 1;
+  max-width: 900px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 0 1.5rem;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  color: #1a1a2e;
+}
+
+#fileList {
+  list-style: none;
+}
+
+#fileList li {
+  background: #fff;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+}
+
+#fileList li:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+#fileList li a {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.2rem;
+  text-decoration: none;
+  color: #333;
+  gap: 0.8rem;
+}
+
+#fileList li a .file-icon {
+  font-size: 1.4rem;
+  width: 2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+#fileList li a .file-info {
+  flex: 1;
+}
+
+#fileList li a .file-name {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+#fileList li a .file-meta {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 0.2rem;
+}
+
+#noResults {
+  color: #888;
+  font-style: italic;
+}
+
+#viewerSection {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid #eee;
+}
+
+#closeViewer {
+  padding: 0.4rem 1rem;
+  background: #e94560;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#closeViewer:hover {
+  background: #c73650;
+}
+
+#viewerContent {
+  min-height: 200px;
+}
+
+#viewerContent iframe {
+  width: 100%;
+  height: 75vh;
+  border: none;
+  border-radius: 4px;
+}
+
+#viewerContent .html-preview {
+  padding: 1rem;
+  line-height: 1.6;
+}
+
+.hidden {
+  display: none;
+}
+
+footer {
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.85rem;
+  color: #999;
+  border-top: 1px solid #eee;
+  margin-top: auto;
+}
