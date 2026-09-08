@@ -3,38 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Dokumente im ITSC-Wiki schnell finden und anzeigen.">
   <title>ITSC-Wiki</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
-  <header>
-    <h1>ITSC-Wiki</h1>
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Dokumente durchsuchen..." autocomplete="off">
-      <button id="searchBtn">Suchen</button>
-    </div>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="ITSC-Wiki Startseite">
+      <span class="brand-mark" aria-hidden="true">I</span>
+      <span class="brand-copy">
+        <strong>ITSC-Wiki</strong>
+        <small>Dokumentation</small>
+      </span>
+    </a>
+    <span id="documentCount" class="document-count" aria-live="polite">Wird geladen …</span>
   </header>
 
   <main>
-    <section class="file-list-section">
-      <h2>Dokumente:</h2>
-      <ul id="fileList"></ul>
-      <p id="noResults" class="hidden">Keine Ergebnisse gefunden.</p>
+    <section class="hero" aria-label="Dokumentensuche">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.6-4.6m2.1-5.1a7.2 7.2 0 1 1-14.4 0 7.2 7.2 0 0 1 14.4 0Z"/></svg>
+        <label class="sr-only" for="searchInput">Dokumente durchsuchen</label>
+        <input type="search" id="searchInput" placeholder="Dokument oder Stichwort suchen …" autocomplete="off" spellcheck="false">
+        <kbd aria-hidden="true">⌘ K</kbd>
+      </div>
+
+      <div class="filters" aria-label="Nach Dokumenttyp filtern">
+        <button class="filter is-active" type="button" data-type="all" aria-pressed="true">Alle</button>
+        <button class="filter" type="button" data-type="html" aria-pressed="false">HTML</button>
+        <button class="filter" type="button" data-type="pdf" aria-pressed="false">PDF</button>
+      </div>
     </section>
 
-    <section id="viewerSection" class="hidden">
-      <div class="viewer-header">
-        <h2 id="viewerTitle"></h2>
-        <button id="closeViewer">Schließen</button>
+    <section class="library" aria-labelledby="resultsTitle">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Übersicht</p>
+          <h2 id="resultsTitle">Alle Dokumente</h2>
+        </div>
+        <p id="resultCount" class="result-count" aria-live="polite"></p>
       </div>
-      <div id="viewerContent"></div>
+
+      <ul id="fileList" class="file-grid" aria-busy="true"></ul>
+
+      <div id="emptyState" class="empty-state hidden">
+        <span aria-hidden="true">⌕</span>
+        <h3>Keine passenden Dokumente</h3>
+        <p>Versuche es mit einem anderen Suchbegriff oder Filter.</p>
+        <button id="resetSearch" type="button">Suche zurücksetzen</button>
+      </div>
+
+      <div id="errorState" class="empty-state hidden" role="alert">
+        <span aria-hidden="true">!</span>
+        <h3>Dokumente konnten nicht geladen werden</h3>
+        <p>Bitte versuche es in einem Moment noch einmal.</p>
+        <button id="retryLoad" type="button">Erneut versuchen</button>
+      </div>
     </section>
   </main>
 
+  <dialog id="viewerDialog" aria-labelledby="viewerTitle">
+    <div class="viewer-header">
+      <div>
+        <span id="viewerType" class="viewer-type"></span>
+        <h2 id="viewerTitle"></h2>
+      </div>
+      <div class="viewer-actions">
+        <a id="openOriginal" class="secondary-button" href="#" target="_blank" rel="noopener">In neuem Tab</a>
+        <button id="closeViewer" class="icon-button" type="button" aria-label="Vorschau schließen">×</button>
+      </div>
+    </div>
+    <div id="viewerContent" class="viewer-content"></div>
+  </dialog>
+
   <footer>
-    <p>&copy; 2026 ITSC-Wiki</p>
+    <p>ITSC-Wiki <span aria-hidden="true">·</span> Zentrale Dokumentenablage</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=2"></script>
 </body>
 </html>
