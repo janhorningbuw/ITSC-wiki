@@ -8,6 +8,7 @@ const elements = {
   count: document.getElementById("resultCount"),
   total: document.getElementById("documentCount"),
   resultsTitle: document.getElementById("resultsTitle"),
+  breadcrumbs: document.getElementById("breadcrumbs"),
   dialog: document.getElementById("viewerDialog"),
   viewerTitle: document.getElementById("viewerTitle"),
   viewerType: document.getElementById("viewerType"),
@@ -17,18 +18,23 @@ const elements = {
 
 let allFiles = [];
 let activeType = "all";
+let currentFolder = "";
 
 async function loadFileList() {
   elements.list.setAttribute("aria-busy", "true");
   elements.error.classList.add("hidden");
+
   try {
     const response = await fetch(`${DOCS_DIR}/index.json`, { cache: "no-cache" });
     if (!response.ok) throw new Error(`Index konnte nicht geladen werden (${response.status})`);
+
     const files = await response.json();
     if (!Array.isArray(files)) throw new Error("Ungültiger Dokumentindex");
-    allFiles = files;
-    elements.total.textContent = `${files.length} ${files.length === 1 ? "Dokument" : "Dokumente"}`;
-    applyFilters();
+
+    allFiles = files.map(prepareFile);
+    const folderCount = countFolders(allFiles);
+    elements.total.textContent = `${allFiles.length} ${allFiles.length === 1 ? "Dokument" : "Dokumente"}${folderCount ? ` · ${folderCount} ${folderCount === 1 ? "Ordner" : "Ordner"}` : ""}`;
+    renderLibrary();
   } catch (error) {
     console.error(error);
     allFiles = [];
@@ -42,84 +48,183 @@ async function loadFileList() {
   }
 }
 
-function renderFiles(files) {
-  const fragment = document.createDocumentFragment();
-  files.forEach((file) => fragment.appendChild(createFileCard(file)));
-  elements.list.replaceChildren(fragment);
-
-  const isFiltered = elements.search.value.trim() || activeType !== "all";
-  elements.resultsTitle.textContent = isFiltered ? "Suchergebnisse" : "Alle Dokumente";
-  elements.count.textContent = `${files.length} Treffer`;
-  elements.empty.classList.toggle("hidden", files.length > 0);
+function prepareFile(file) {
+  const path = String(file.file || "").replaceAll("\\", "/").replace(/^\/+|\/+$/g, "");
+  const pathParts = path.split("/").filter(Boolean);
+  const derivedFolder = pathParts.slice(0, -1).join("/");
+  const folder = String(file.folder ?? derivedFolder).replaceAll("\\", "/").replace(/^\/+|\/+$/g, "");
+  return { ...file, file: path, folder };
 }
 
-function createFileCard(file) {
+function renderLibrary() {
+  const terms = normalize(elements.search.value).trim().split(/\s+/).filter(Boolean);
+  const isSearching = terms.length > 0;
+  const matchingFiles = allFiles.filter((file) => matchesFile(file, terms));
+  const fragment = document.createDocumentFragment();
+  let itemCount = 0;
+
+  if (isSearching) {
+    matchingFiles.forEach((file) => fragment.appendChild(createFileCard(file, true)));
+    itemCount = matchingFiles.length;
+    elements.resultsTitle.textContent = "Suchergebnisse";
+    elements.breadcrumbs.classList.add("hidden");
+  } else {
+    const folders = getChildFolders(matchingFiles, currentFolder);
+    const files = matchingFiles.filter((file) => file.folder === currentFolder);
+    folders.forEach((folder) => fragment.appendChild(createFolderCard(folder)));
+    files.forEach((file) => fragment.appendChild(createFileCard(file, false)));
+    itemCount = folders.length + files.length;
+    elements.resultsTitle.textContent = currentFolder ? getFolderName(currentFolder) : "Alle Dokumente";
+    renderBreadcrumbs();
+  }
+
+  elements.list.replaceChildren(fragment);
+  elements.count.textContent = `${itemCount} ${itemCount === 1 ? "Eintrag" : "Einträge"}`;
+  elements.empty.classList.toggle("hidden", itemCount > 0);
+}
+
+function matchesFile(file, terms) {
+  const type = String(file.type || "").toLowerCase();
+  const matchesType = activeType === "all" || type === activeType;
+  const text = normalize([file.name, file.file, file.folder, file.description, ...(file.tags || [])].join(" "));
+  return matchesType && terms.every((term) => text.includes(term));
+}
+
+function getChildFolders(files, parentFolder) {
+  const prefix = parentFolder ? `${parentFolder}/` : "";
+  const folders = new Map();
+
+  files.forEach((file) => {
+    if (!file.folder.startsWith(prefix) || file.folder === parentFolder) return;
+    const remainder = file.folder.slice(prefix.length);
+    const childName = remainder.split("/")[0];
+    if (!childName) return;
+
+    const path = `${prefix}${childName}`;
+    const existing = folders.get(path) || { name: childName, path, count: 0 };
+    existing.count += 1;
+    folders.set(path, existing);
+  });
+
+  return [...folders.values()].sort((a, b) => a.name.localeCompare(b.name, "de"));
+}
+
+function countFolders(files) {
+  const folders = new Set();
+  files.forEach((file) => {
+    let path = "";
+    file.folder.split("/").filter(Boolean).forEach((part) => {
+      path = path ? `${path}/${part}` : part;
+      folders.add(path);
+    });
+  });
+  return folders.size;
+}
+
+function createFolderCard(folder) {
+  const item = document.createElement("li");
+  item.className = "file-card folder-card";
+
+  const button = createCardButton(() => openFolder(folder.path));
+  const top = createCardTop("folder", "📁");
+  const name = createTextElement("strong", "file-name", folder.name);
+  const description = createTextElement("span", "file-description", `${folder.count} ${folder.count === 1 ? "Dokument" : "Dokumente"}`);
+  const meta = createTextElement("span", "file-meta", "ORDNER");
+  button.append(top, name, description, meta);
+  item.appendChild(button);
+  return item;
+}
+
+function createFileCard(file, showFolder) {
   const item = document.createElement("li");
   item.className = "file-card";
 
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "file-button";
-  button.addEventListener("click", () => openFile(file));
-
-  const top = document.createElement("span");
-  top.className = "file-card-top";
-
   const type = String(file.type || "datei").toLowerCase();
-  const icon = document.createElement("span");
-  icon.className = `file-icon ${type === "pdf" ? "file-icon--pdf" : "file-icon--html"}`;
-  icon.textContent = type === "pdf" ? "PDF" : "Aa";
+  const button = createCardButton(() => openFile(file));
+  const top = createCardTop(type === "pdf" ? "pdf" : "html", type === "pdf" ? "PDF" : "Aa");
+  const name = createTextElement("strong", "file-name", file.name || getFileName(file.file) || "Unbenanntes Dokument");
+  const description = createTextElement("span", "file-description", file.description || (type === "pdf" ? "PDF-Dokument" : "HTML-Dokument"));
 
-  const arrow = document.createElement("span");
-  arrow.className = "card-arrow";
-  arrow.setAttribute("aria-hidden", "true");
-  arrow.textContent = "↗";
-  top.append(icon, arrow);
-
-  const name = document.createElement("strong");
-  name.className = "file-name";
-  name.textContent = file.name || file.file || "Unbenanntes Dokument";
-
-  const description = document.createElement("span");
-  description.className = "file-description";
-  description.textContent = file.description || (type === "pdf" ? "PDF-Dokument" : "HTML-Dokument");
-
-  const meta = document.createElement("span");
-  meta.className = "file-meta";
-  meta.textContent = [type.toUpperCase(), formatSize(file.size), formatDate(file.date)].filter(Boolean).join(" · ");
+  const metadata = [type.toUpperCase(), formatSize(file.size), formatDate(file.date)];
+  if (showFolder && file.folder) metadata.push(`in ${file.folder}`);
+  const meta = createTextElement("span", "file-meta", metadata.filter(Boolean).join(" · "));
 
   button.append(top, name, description, meta);
   item.appendChild(button);
   return item;
 }
 
-function normalize(value) {
-  return String(value || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("de");
+function createCardButton(onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "file-button";
+  button.addEventListener("click", onClick);
+  return button;
 }
 
-function applyFilters() {
-  const terms = normalize(elements.search.value).trim().split(/\s+/).filter(Boolean);
-  const filtered = allFiles.filter((file) => {
-    const type = String(file.type || "").toLowerCase();
-    const matchesType = activeType === "all" || type === activeType;
-    const text = normalize([file.name, file.file, file.description, ...(file.tags || [])].join(" "));
-    return matchesType && terms.every((term) => text.includes(term));
+function createCardTop(kind, label) {
+  const top = document.createElement("span");
+  top.className = "file-card-top";
+
+  const icon = createTextElement("span", `file-icon file-icon--${kind}`, label);
+  const arrow = createTextElement("span", "card-arrow", kind === "folder" ? "→" : "↗");
+  arrow.setAttribute("aria-hidden", "true");
+  top.append(icon, arrow);
+  return top;
+}
+
+function createTextElement(tag, className, text) {
+  const element = document.createElement(tag);
+  element.className = className;
+  element.textContent = text;
+  return element;
+}
+
+function openFolder(path) {
+  currentFolder = path;
+  renderLibrary();
+  document.querySelector(".library").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderBreadcrumbs() {
+  elements.breadcrumbs.classList.remove("hidden");
+  const fragment = document.createDocumentFragment();
+  fragment.appendChild(createBreadcrumb("Alle Dokumente", "", currentFolder === ""));
+
+  let path = "";
+  currentFolder.split("/").filter(Boolean).forEach((part) => {
+    const separator = createTextElement("span", "breadcrumb-separator", "/");
+    separator.setAttribute("aria-hidden", "true");
+    fragment.appendChild(separator);
+    path = path ? `${path}/${part}` : part;
+    fragment.appendChild(createBreadcrumb(part, path, path === currentFolder));
   });
-  renderFiles(filtered);
+
+  elements.breadcrumbs.replaceChildren(fragment);
+}
+
+function createBreadcrumb(label, path, isCurrent) {
+  if (isCurrent) {
+    const current = createTextElement("span", "breadcrumb-current", label);
+    current.setAttribute("aria-current", "page");
+    return current;
+  }
+
+  const button = createTextElement("button", "breadcrumb-button", label);
+  button.type = "button";
+  button.addEventListener("click", () => openFolder(path));
+  return button;
 }
 
 function openFile(file) {
-  const url = `${DOCS_DIR}/${encodeURIComponent(file.file)}`;
-  elements.viewerTitle.textContent = file.name || file.file;
+  const url = `${DOCS_DIR}/${encodePath(file.file)}`;
+  elements.viewerTitle.textContent = file.name || getFileName(file.file);
   elements.viewerType.textContent = String(file.type || "Dokument").toUpperCase();
   elements.openOriginal.href = url;
 
   const iframe = document.createElement("iframe");
   iframe.src = url;
-  iframe.title = file.name || file.file;
+  iframe.title = file.name || getFileName(file.file);
   elements.viewerContent.replaceChildren(iframe);
   elements.dialog.showModal();
 }
@@ -137,8 +242,24 @@ function resetSearch() {
     filter.classList.toggle("is-active", isActive);
     filter.setAttribute("aria-pressed", String(isActive));
   });
-  applyFilters();
+  renderLibrary();
   elements.search.focus();
+}
+
+function normalize(value) {
+  return String(value || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase("de");
+}
+
+function encodePath(path) {
+  return path.split("/").map((part) => encodeURIComponent(part)).join("/");
+}
+
+function getFileName(path) {
+  return path.split("/").pop() || path;
+}
+
+function getFolderName(path) {
+  return path.split("/").pop() || "Alle Dokumente";
 }
 
 function formatSize(bytes) {
@@ -156,7 +277,7 @@ function formatDate(value) {
   return new Intl.DateTimeFormat("de-DE", { day: "2-digit", month: "short", year: "numeric" }).format(date);
 }
 
-elements.search.addEventListener("input", applyFilters);
+elements.search.addEventListener("input", renderLibrary);
 document.querySelectorAll(".filter").forEach((filter) => {
   filter.addEventListener("click", () => {
     activeType = filter.dataset.type;
@@ -165,7 +286,7 @@ document.querySelectorAll(".filter").forEach((filter) => {
       item.classList.toggle("is-active", isActive);
       item.setAttribute("aria-pressed", String(isActive));
     });
-    applyFilters();
+    renderLibrary();
   });
 });
 document.getElementById("resetSearch").addEventListener("click", resetSearch);

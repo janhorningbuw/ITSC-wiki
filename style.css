@@ -183,6 +183,30 @@ h1 {
 .section-heading h2 { margin: 0; font-size: clamp(27px, 4vw, 36px); }
 .result-count { margin: 0 0 5px; color: var(--muted); font-size: 14px; }
 
+.breadcrumbs {
+  min-height: 34px;
+  margin: -8px 0 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.breadcrumb-button {
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--brand);
+  background: transparent;
+  cursor: pointer;
+}
+
+.breadcrumb-button:hover { background: var(--accent); }
+.breadcrumb-current { padding: 5px 8px; color: var(--ink); font-weight: 650; }
+.breadcrumb-separator { color: #a4afad; }
+
 .file-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -215,7 +239,7 @@ h1 {
   box-shadow: 0 16px 35px rgba(24, 52, 49, 0.1);
 }
 
-.file-button:focus-visible, .filter:focus-visible, .icon-button:focus-visible, .secondary-button:focus-visible {
+.file-button:focus-visible, .filter:focus-visible, .breadcrumb-button:focus-visible, .icon-button:focus-visible, .secondary-button:focus-visible {
   outline: 3px solid rgba(12, 107, 98, 0.25);
   outline-offset: 3px;
 }
@@ -234,6 +258,9 @@ h1 {
 
 .file-icon--html { color: var(--brand-dark); background: var(--accent); font-family: Georgia, serif; font-size: 18px; }
 .file-icon--pdf { color: var(--pdf); background: #fae8e5; font-size: 11px; }
+.file-icon--folder { color: #8b681d; background: #fff1c9; font-size: 21px; }
+.folder-card .file-button { background: rgba(255, 252, 242, 0.9); }
+.folder-card .file-description { color: #846f43; }
 .card-arrow { color: #9aa8a5; font-size: 21px; transition: transform 180ms, color 180ms; }
 .file-button:hover .card-arrow { color: var(--brand); transform: translate(2px, -2px); }
 

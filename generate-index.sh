@@ -1,26 +1,44 @@
-#!/bin/bash
-# Erzeugt index.json automatisch aus allen HTML/PDF Dateien im docs/ Ordner.
+#!/usr/bin/env bash
+# Erzeugt index.json rekursiv aus allen HTML/PDF-Dateien im Dokumentordner.
+set -euo pipefail
 
-DOCS="docs"
+DOCS="${1:-docs}"
 OUTPUT="$DOCS/index.json"
 
-echo "[" > "$OUTPUT"
+python3 - "$DOCS" "$OUTPUT" <<'PY'
+import json
+import sys
+from datetime import datetime
+from pathlib import Path
 
-first=true
+docs = Path(sys.argv[1])
+output = Path(sys.argv[2])
 
-for f in "$DOCS"/*.html "$DOCS"/*.pdf; do
-  [ -f "$f" ] || continue
-  filename=$(basename "$f")
-  name=$(basename "$f" | sed 's/\.[^.]*$//' | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')
-  ext="${filename##*.}"
-  size=$(stat -f%z "$f" 2>/dev/null || stat -c%s "$f" 2>/dev/null)
-  date=$(stat -f%Sm -t"%Y-%m-%d" "$f" 2>/dev/null || stat -c%y "$f" 2>/dev/null | cut -d' ' -f1)
+if not docs.is_dir():
+    raise SystemExit(f"Dokumentordner nicht gefunden: {docs}")
 
-  if [ "$first" = true ]; then first=false; else echo "," >> "$OUTPUT"; fi
-  printf '  {"name":"%s","file":"%s","type":"%s","description":"","tags":[],"size":%s,"date":"%s"}' \
-    "$name" "$filename" "$ext" "$size" "$date" >> "$OUTPUT"
-done
+entries = []
+for path in sorted(docs.rglob("*"), key=lambda item: item.as_posix().casefold()):
+    extension = path.suffix.lower()
+    if not path.is_file() or extension not in {".html", ".pdf"}:
+        continue
 
-echo "" >> "$OUTPUT"
-echo "]" >> "$OUTPUT"
-echo "index.json erstellt mit $(grep -c '"name"' "$OUTPUT") Eintraegen."
+    relative_path = path.relative_to(docs).as_posix()
+    folder = path.parent.relative_to(docs).as_posix()
+    if folder == ".":
+        folder = ""
+
+    entries.append({
+        "name": path.stem.replace("-", " ").replace("_", " ").title(),
+        "file": relative_path,
+        "folder": folder,
+        "type": extension.removeprefix("."),
+        "description": "",
+        "tags": [],
+        "size": path.stat().st_size,
+        "date": datetime.fromtimestamp(path.stat().st_mtime).date().isoformat(),
+    })
+
+output.write_text(json.dumps(entries, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(f"index.json erstellt mit {len(entries)} Einträgen in {docs}.")
+PY
