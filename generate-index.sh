@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Erzeugt index.json rekursiv aus allen HTML/PDF-Dateien im Dokumentordner.
+# Erzeugt index.json rekursiv aus allen HTML-, PDF- und Markdown-Dateien.
 set -euo pipefail
 
 DOCS="${1:-docs}"
@@ -18,9 +18,17 @@ if not docs.is_dir():
     raise SystemExit(f"Dokumentordner nicht gefunden: {docs}")
 
 entries = []
+supported_types = {
+    ".html": "html",
+    ".pdf": "pdf",
+    ".md": "markdown",
+    ".markdown": "markdown",
+    ".mdown": "markdown",
+}
+
 for path in sorted(docs.rglob("*"), key=lambda item: item.as_posix().casefold()):
     extension = path.suffix.lower()
-    if not path.is_file() or extension not in {".html", ".pdf"}:
+    if not path.is_file() or extension not in supported_types:
         continue
 
     relative_path = path.relative_to(docs).as_posix()
@@ -32,7 +40,7 @@ for path in sorted(docs.rglob("*"), key=lambda item: item.as_posix().casefold())
         "name": path.stem.replace("-", " ").replace("_", " ").title(),
         "file": relative_path,
         "folder": folder,
-        "type": extension.removeprefix("."),
+        "type": supported_types[extension],
         "description": "",
         "tags": [],
         "size": path.stat().st_size,

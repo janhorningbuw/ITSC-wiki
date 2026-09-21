@@ -53,7 +53,9 @@ function prepareFile(file) {
   const pathParts = path.split("/").filter(Boolean);
   const derivedFolder = pathParts.slice(0, -1).join("/");
   const folder = String(file.folder ?? derivedFolder).replaceAll("\\", "/").replace(/^\/+|\/+$/g, "");
-  return { ...file, file: path, folder };
+  const rawType = String(file.type || pathParts.at(-1)?.split(".").pop() || "").toLowerCase();
+  const type = ["md", "markdown", "mdown"].includes(rawType) ? "markdown" : rawType;
+  return { ...file, file: path, folder, type };
 }
 
 function renderLibrary() {
@@ -141,9 +143,12 @@ function createFileCard(file, showFolder) {
 
   const type = String(file.type || "datei").toLowerCase();
   const button = createCardButton(() => openFile(file));
-  const top = createCardTop(type === "pdf" ? "pdf" : "html", type === "pdf" ? "PDF" : "Aa");
+  const iconKind = type === "pdf" ? "pdf" : type === "markdown" ? "markdown" : "html";
+  const iconLabel = type === "pdf" ? "PDF" : type === "markdown" ? "MD" : "Aa";
+  const top = createCardTop(iconKind, iconLabel);
   const name = createTextElement("strong", "file-name", file.name || getFileName(file.file) || "Unbenanntes Dokument");
-  const description = createTextElement("span", "file-description", file.description || (type === "pdf" ? "PDF-Dokument" : "HTML-Dokument"));
+  const fallbackDescription = type === "pdf" ? "PDF-Dokument" : type === "markdown" ? "Markdown-Dokument" : "HTML-Dokument";
+  const description = createTextElement("span", "file-description", file.description || fallbackDescription);
 
   const metadata = [type.toUpperCase(), formatSize(file.size), formatDate(file.date)];
   if (showFolder && file.folder) metadata.push(`in ${file.folder}`);
@@ -216,22 +221,41 @@ function createBreadcrumb(label, path, isCurrent) {
   return button;
 }
 
-function openFile(file) {
+async function openFile(file) {
   const url = `${DOCS_DIR}/${encodePath(file.file)}`;
   elements.viewerTitle.textContent = file.name || getFileName(file.file);
   elements.viewerType.textContent = String(file.type || "Dokument").toUpperCase();
   elements.openOriginal.href = url;
+  elements.viewerContent.classList.toggle("markdown-viewer", file.type === "markdown");
+
+  if (!elements.dialog.open) elements.dialog.showModal();
+
+  if (file.type === "markdown") {
+    const loading = createTextElement("p", "viewer-message", "Markdown wird geladen …");
+    elements.viewerContent.replaceChildren(loading);
+
+    try {
+      const response = await fetch(url, { cache: "no-cache" });
+      if (!response.ok) throw new Error(`Markdown konnte nicht geladen werden (${response.status})`);
+      elements.viewerContent.replaceChildren(renderMarkdown(await response.text(), url));
+    } catch (error) {
+      console.error(error);
+      const message = createTextElement("p", "viewer-message viewer-message--error", "Die Markdown-Datei konnte nicht angezeigt werden. Öffne sie stattdessen in einem neuen Tab.");
+      elements.viewerContent.replaceChildren(message);
+    }
+    return;
+  }
 
   const iframe = document.createElement("iframe");
   iframe.src = url;
   iframe.title = file.name || getFileName(file.file);
   elements.viewerContent.replaceChildren(iframe);
-  elements.dialog.showModal();
 }
 
 function closeViewer() {
   elements.dialog.close();
   elements.viewerContent.replaceChildren();
+  elements.viewerContent.classList.remove("markdown-viewer");
 }
 
 function resetSearch() {
@@ -244,6 +268,198 @@ function resetSearch() {
   });
   renderLibrary();
   elements.search.focus();
+}
+
+function renderMarkdown(source, documentUrl) {
+  const article = document.createElement("article");
+  article.className = "markdown-document";
+  const lines = source.replace(/\r\n?/g, "\n").split("\n");
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fence = line.match(/^\s*```([^\s`]*)\s*$/);
+    if (fence) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !/^\s*```/.test(lines[index])) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      index += index < lines.length ? 1 : 0;
+      const pre = document.createElement("pre");
+      const code = document.createElement("code");
+      if (fence[1]) code.dataset.language = fence[1];
+      code.textContent = codeLines.join("\n");
+      pre.appendChild(code);
+      article.appendChild(pre);
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,6})\s+(.+)$/);
+    if (heading) {
+      const element = document.createElement(`h${heading[1].length}`);
+      element.appendChild(renderInlineMarkdown(heading[2], documentUrl));
+      article.appendChild(element);
+      index += 1;
+      continue;
+    }
+
+    if (/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(line)) {
+      article.appendChild(document.createElement("hr"));
+      index += 1;
+      continue;
+    }
+
+    if (/^\s*>/.test(line)) {
+      const quoteLines = [];
+      while (index < lines.length && /^\s*>/.test(lines[index])) {
+        quoteLines.push(lines[index].replace(/^\s*>\s?/, ""));
+        index += 1;
+      }
+      const quote = document.createElement("blockquote");
+      quote.appendChild(renderInlineMarkdown(quoteLines.join(" "), documentUrl));
+      article.appendChild(quote);
+      continue;
+    }
+
+    const listMatch = line.match(/^\s*(?:([-+*])|(\d+)\.)\s+(.+)$/);
+    if (listMatch) {
+      const ordered = Boolean(listMatch[2]);
+      const list = document.createElement(ordered ? "ol" : "ul");
+      while (index < lines.length) {
+        const itemMatch = lines[index].match(/^\s*(?:([-+*])|(\d+)\.)\s+(.+)$/);
+        if (!itemMatch || Boolean(itemMatch[2]) !== ordered) break;
+        const item = document.createElement("li");
+        item.appendChild(renderInlineMarkdown(itemMatch[3], documentUrl));
+        list.appendChild(item);
+        index += 1;
+      }
+      article.appendChild(list);
+      continue;
+    }
+
+    if (index + 1 < lines.length && isTableDivider(lines[index + 1])) {
+      const table = document.createElement("table");
+      const head = document.createElement("thead");
+      const headRow = document.createElement("tr");
+      splitTableRow(line).forEach((cell) => {
+        const th = document.createElement("th");
+        th.appendChild(renderInlineMarkdown(cell, documentUrl));
+        headRow.appendChild(th);
+      });
+      head.appendChild(headRow);
+      table.appendChild(head);
+      index += 2;
+
+      const body = document.createElement("tbody");
+      while (index < lines.length && lines[index].includes("|") && lines[index].trim()) {
+        const row = document.createElement("tr");
+        splitTableRow(lines[index]).forEach((cell) => {
+          const td = document.createElement("td");
+          td.appendChild(renderInlineMarkdown(cell, documentUrl));
+          row.appendChild(td);
+        });
+        body.appendChild(row);
+        index += 1;
+      }
+      table.appendChild(body);
+      article.appendChild(table);
+      continue;
+    }
+
+    const paragraphLines = [line.trim()];
+    index += 1;
+    while (index < lines.length && lines[index].trim() && !isMarkdownBlockStart(lines, index)) {
+      paragraphLines.push(lines[index].trim());
+      index += 1;
+    }
+    const paragraph = document.createElement("p");
+    paragraph.appendChild(renderInlineMarkdown(paragraphLines.join(" "), documentUrl));
+    article.appendChild(paragraph);
+  }
+
+  return article;
+}
+
+function isMarkdownBlockStart(lines, index) {
+  const line = lines[index];
+  return /^\s*```/.test(line)
+    || /^(#{1,6})\s+/.test(line)
+    || /^\s*>/.test(line)
+    || /^\s*(?:[-+*]|\d+\.)\s+/.test(line)
+    || /^\s*(?:---+|___+|\*\*\*+)\s*$/.test(line)
+    || (index + 1 < lines.length && isTableDivider(lines[index + 1]));
+}
+
+function isTableDivider(line) {
+  const cells = splitTableRow(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
+}
+
+function splitTableRow(line) {
+  return line.trim().replace(/^\||\|$/g, "").split("|").map((cell) => cell.trim());
+}
+
+function renderInlineMarkdown(text, documentUrl) {
+  const fragment = document.createDocumentFragment();
+  const pattern = /!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\)|`([^`]+)`|\*\*([^*]+)\*\*|__([^_]+)__|\*([^*]+)\*|_([^_]+)_/g;
+  let cursor = 0;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    fragment.appendChild(document.createTextNode(text.slice(cursor, match.index)));
+
+    if (match[1] !== undefined) {
+      const source = resolveSafeUrl(match[2], documentUrl);
+      if (source) {
+        const image = document.createElement("img");
+        image.src = source;
+        image.alt = match[1];
+        image.loading = "lazy";
+        fragment.appendChild(image);
+      } else {
+        fragment.appendChild(document.createTextNode(match[0]));
+      }
+    } else if (match[3] !== undefined) {
+      const href = resolveSafeUrl(match[4], documentUrl);
+      if (href) {
+        const link = createTextElement("a", "", match[3]);
+        link.href = href;
+        link.target = "_blank";
+        link.rel = "noopener";
+        fragment.appendChild(link);
+      } else {
+        fragment.appendChild(document.createTextNode(match[3]));
+      }
+    } else if (match[5] !== undefined) {
+      fragment.appendChild(createTextElement("code", "", match[5]));
+    } else if (match[6] !== undefined || match[7] !== undefined) {
+      fragment.appendChild(createTextElement("strong", "", match[6] ?? match[7]));
+    } else {
+      fragment.appendChild(createTextElement("em", "", match[8] ?? match[9]));
+    }
+    cursor = pattern.lastIndex;
+  }
+
+  fragment.appendChild(document.createTextNode(text.slice(cursor)));
+  return fragment;
+}
+
+function resolveSafeUrl(value, documentUrl) {
+  if (value.startsWith("#")) return value;
+  try {
+    const base = new URL(documentUrl, document.baseURI);
+    const url = new URL(value, base);
+    return ["http:", "https:", "file:"].includes(url.protocol) ? url.href : "";
+  } catch {
+    return "";
+  }
 }
 
 function normalize(value) {

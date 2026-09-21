@@ -258,6 +258,7 @@ h1 {
 
 .file-icon--html { color: var(--brand-dark); background: var(--accent); font-family: Georgia, serif; font-size: 18px; }
 .file-icon--pdf { color: var(--pdf); background: #fae8e5; font-size: 11px; }
+.file-icon--markdown { color: #425b89; background: #e8edfa; font-size: 12px; }
 .file-icon--folder { color: #8b681d; background: #fff1c9; font-size: 21px; }
 .folder-card .file-button { background: rgba(255, 252, 242, 0.9); }
 .folder-card .file-description { color: #846f43; }
@@ -341,6 +342,43 @@ dialog::backdrop { background: rgba(8, 31, 29, 0.58); backdrop-filter: blur(5px)
 .icon-button { width: 42px; height: 42px; border: 0; border-radius: 10px; color: var(--ink); background: var(--paper); cursor: pointer; font-size: 28px; line-height: 1; }
 .viewer-content { height: calc(100% - 82px); background: #eef1ee; }
 .viewer-content iframe { width: 100%; height: 100%; border: 0; background: white; }
+
+.viewer-content.markdown-viewer { overflow: auto; background: white; }
+
+.markdown-document {
+  width: min(780px, calc(100% - 44px));
+  margin: 0 auto;
+  padding: clamp(36px, 7vw, 70px) 0 80px;
+  color: #263534;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.markdown-document h1,
+.markdown-document h2,
+.markdown-document h3,
+.markdown-document h4,
+.markdown-document h5,
+.markdown-document h6 { margin: 1.7em 0 0.6em; line-height: 1.25; }
+.markdown-document h1 { margin-top: 0; padding-bottom: 0.35em; border-bottom: 1px solid var(--line); font-size: 2.2em; }
+.markdown-document h2 { padding-bottom: 0.3em; border-bottom: 1px solid var(--line); font-size: 1.65em; }
+.markdown-document h3 { font-size: 1.3em; }
+.markdown-document p { margin-bottom: 1.15em; }
+.markdown-document ul, .markdown-document ol { margin: 0 0 1.2em; padding-left: 1.6em; }
+.markdown-document li { margin-bottom: 0.3em; }
+.markdown-document a { color: var(--brand); text-underline-offset: 3px; }
+.markdown-document img { display: block; max-width: 100%; height: auto; margin: 1.5em auto; border-radius: 10px; }
+.markdown-document blockquote { margin: 1.4em 0; padding: 0.7em 1.2em; border-left: 4px solid var(--brand); color: var(--muted); background: var(--accent); }
+.markdown-document code { padding: 0.15em 0.4em; border-radius: 5px; color: #8b3540; background: #f5ebed; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+.markdown-document pre { overflow-x: auto; margin: 1.4em 0; padding: 18px; border-radius: 11px; background: #172625; }
+.markdown-document pre code { padding: 0; color: #eef7f4; background: transparent; }
+.markdown-document hr { margin: 2.2em 0; border: 0; border-top: 1px solid var(--line); }
+.markdown-document table { width: 100%; margin: 1.5em 0; border-collapse: collapse; }
+.markdown-document th, .markdown-document td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; }
+.markdown-document th { background: var(--paper); }
+
+.viewer-message { max-width: 620px; margin: 60px auto; padding: 20px; color: var(--muted); text-align: center; }
+.viewer-message--error { color: var(--pdf); }
 
 footer { padding: 25px 20px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 13px; }
 .hidden { display: none !important; }
