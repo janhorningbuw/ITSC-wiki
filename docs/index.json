@@ -7,7 +7,7 @@
     "description": "",
     "tags": [],
     "size": 12904,
-    "date": "2026-09-21"
+    "date": "2026-08-20"
   },
   {
     "name": "Lorem Ipsum",
@@ -20,6 +20,16 @@
     "date": "2026-09-21"
   },
   {
+    "name": "Readme",
+    "file": "Beispiele/README.md",
+    "folder": "Beispiele",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 143,
+    "date": "2026-09-23"
+  },
+  {
     "name": "Diavola",
     "file": "diavola.html",
     "folder": "",
@@ -27,7 +37,7 @@
     "description": "",
     "tags": [],
     "size": 2024,
-    "date": "2026-09-21"
+    "date": "2026-09-07"
   },
   {
     "name": "Margherita",
@@ -37,7 +47,7 @@
     "description": "",
     "tags": [],
     "size": 2106,
-    "date": "2026-09-21"
+    "date": "2026-09-07"
   },
   {
     "name": "Quattro Formaggi",
@@ -47,7 +57,17 @@
     "description": "",
     "tags": [],
     "size": 2013,
-    "date": "2026-09-21"
+    "date": "2026-09-07"
+  },
+  {
+    "name": "Readme",
+    "file": "Pizzen/README.md",
+    "folder": "Pizzen",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 86,
+    "date": "2026-09-23"
   },
   {
     "name": "Teig Grundrezept",
@@ -57,7 +77,17 @@
     "description": "",
     "tags": [],
     "size": 1990,
-    "date": "2026-09-21"
+    "date": "2026-08-20"
+  },
+  {
+    "name": "Readme",
+    "file": "README.md",
+    "folder": "",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 379,
+    "date": "2026-09-23"
   },
   {
     "name": "Test",
@@ -67,7 +97,7 @@
     "description": "",
     "tags": [],
     "size": 12904,
-    "date": "2026-09-21"
+    "date": "2026-08-20"
   },
   {
     "name": "Willkommen",
@@ -77,6 +107,6 @@
     "description": "",
     "tags": [],
     "size": 511,
-    "date": "2026-09-21"
+    "date": "2026-09-07"
   }
 ]

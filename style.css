@@ -207,6 +207,26 @@ h1 {
 .breadcrumb-current { padding: 5px 8px; color: var(--ink); font-weight: 650; }
 .breadcrumb-separator { color: #a4afad; }
 
+.folder-readme {
+  margin: 0 0 24px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 4px 18px rgba(24, 52, 49, 0.035);
+}
+
+.folder-readme .markdown-document {
+  width: 100%;
+  margin: 0;
+  padding: clamp(24px, 4vw, 38px);
+}
+
+.folder-readme .markdown-document h1 { font-size: clamp(27px, 4vw, 36px); }
+.folder-readme .markdown-document h2 { font-size: 1.3em; }
+.folder-readme-status { margin: 0; padding: 26px; color: var(--muted); }
+.folder-readme-status--error { color: var(--pdf); }
+
 .file-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));

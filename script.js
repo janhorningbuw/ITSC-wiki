@@ -9,6 +9,7 @@ const elements = {
   total: document.getElementById("documentCount"),
   resultsTitle: document.getElementById("resultsTitle"),
   breadcrumbs: document.getElementById("breadcrumbs"),
+  folderReadme: document.getElementById("folderReadme"),
   dialog: document.getElementById("viewerDialog"),
   viewerTitle: document.getElementById("viewerTitle"),
   viewerType: document.getElementById("viewerType"),
@@ -19,6 +20,7 @@ const elements = {
 let allFiles = [];
 let activeType = "all";
 let currentFolder = "";
+let readmeRequestId = 0;
 
 async function loadFileList() {
   elements.list.setAttribute("aria-busy", "true");
@@ -33,7 +35,8 @@ async function loadFileList() {
 
     allFiles = files.map(prepareFile);
     const folderCount = countFolders(allFiles);
-    elements.total.textContent = `${allFiles.length} ${allFiles.length === 1 ? "Dokument" : "Dokumente"}${folderCount ? ` · ${folderCount} ${folderCount === 1 ? "Ordner" : "Ordner"}` : ""}`;
+    const documentCount = allFiles.filter((file) => !isReadmeFile(file)).length;
+    elements.total.textContent = `${documentCount} ${documentCount === 1 ? "Dokument" : "Dokumente"}${folderCount ? ` · ${folderCount} ${folderCount === 1 ? "Ordner" : "Ordner"}` : ""}`;
     renderLibrary();
   } catch (error) {
     console.error(error);
@@ -62,27 +65,33 @@ function renderLibrary() {
   const terms = normalize(elements.search.value).trim().split(/\s+/).filter(Boolean);
   const isSearching = terms.length > 0;
   const matchingFiles = allFiles.filter((file) => matchesFile(file, terms));
+  const matchingDocuments = matchingFiles.filter((file) => !isReadmeFile(file));
   const fragment = document.createDocumentFragment();
   let itemCount = 0;
 
   if (isSearching) {
-    matchingFiles.forEach((file) => fragment.appendChild(createFileCard(file, true)));
-    itemCount = matchingFiles.length;
+    matchingDocuments.forEach((file) => fragment.appendChild(createFileCard(file, true)));
+    itemCount = matchingDocuments.length;
     elements.resultsTitle.textContent = "Suchergebnisse";
     elements.breadcrumbs.classList.add("hidden");
+    hideFolderReadme();
   } else {
-    const folders = getChildFolders(matchingFiles, currentFolder);
-    const files = matchingFiles.filter((file) => file.folder === currentFolder);
+    const folderSource = activeType === "all" ? matchingFiles : matchingDocuments;
+    const folders = getChildFolders(folderSource, currentFolder);
+    const files = matchingDocuments.filter((file) => file.folder === currentFolder);
+    const readme = allFiles.find((file) => file.folder === currentFolder && isReadmeFile(file));
     folders.forEach((folder) => fragment.appendChild(createFolderCard(folder)));
     files.forEach((file) => fragment.appendChild(createFileCard(file, false)));
     itemCount = folders.length + files.length;
     elements.resultsTitle.textContent = currentFolder ? getFolderName(currentFolder) : "Alle Dokumente";
     renderBreadcrumbs();
+    loadFolderReadme(readme);
   }
 
   elements.list.replaceChildren(fragment);
   elements.count.textContent = `${itemCount} ${itemCount === 1 ? "Eintrag" : "Einträge"}`;
-  elements.empty.classList.toggle("hidden", itemCount > 0);
+  const hasReadme = !isSearching && allFiles.some((file) => file.folder === currentFolder && isReadmeFile(file));
+  elements.empty.classList.toggle("hidden", itemCount > 0 || hasReadme);
 }
 
 function matchesFile(file, terms) {
@@ -104,11 +113,15 @@ function getChildFolders(files, parentFolder) {
 
     const path = `${prefix}${childName}`;
     const existing = folders.get(path) || { name: childName, path, count: 0 };
-    existing.count += 1;
+    if (!isReadmeFile(file)) existing.count += 1;
     folders.set(path, existing);
   });
 
   return [...folders.values()].sort((a, b) => a.name.localeCompare(b.name, "de"));
+}
+
+function isReadmeFile(file) {
+  return file.type === "markdown" && /^readme\.(?:md|markdown|mdown)$/i.test(getFileName(file.file));
 }
 
 function countFolders(files) {
@@ -219,6 +232,42 @@ function createBreadcrumb(label, path, isCurrent) {
   button.type = "button";
   button.addEventListener("click", () => openFolder(path));
   return button;
+}
+
+async function loadFolderReadme(file) {
+  const requestId = ++readmeRequestId;
+  if (!file) {
+    hideFolderReadme(false);
+    return;
+  }
+
+  const url = `${DOCS_DIR}/${encodePath(file.file)}`;
+  const loading = createTextElement("p", "folder-readme-status", "Ordnerbeschreibung wird geladen …");
+  elements.folderReadme.replaceChildren(loading);
+  elements.folderReadme.classList.remove("hidden");
+  elements.folderReadme.setAttribute("aria-busy", "true");
+
+  try {
+    const response = await fetch(url, { cache: "no-cache" });
+    if (!response.ok) throw new Error(`README konnte nicht geladen werden (${response.status})`);
+    const source = await response.text();
+    if (requestId !== readmeRequestId) return;
+    elements.folderReadme.replaceChildren(renderMarkdown(source, url));
+  } catch (error) {
+    if (requestId !== readmeRequestId) return;
+    console.error(error);
+    const message = createTextElement("p", "folder-readme-status folder-readme-status--error", "Die Ordnerbeschreibung konnte nicht geladen werden.");
+    elements.folderReadme.replaceChildren(message);
+  } finally {
+    if (requestId === readmeRequestId) elements.folderReadme.setAttribute("aria-busy", "false");
+  }
+}
+
+function hideFolderReadme(invalidateRequest = true) {
+  if (invalidateRequest) readmeRequestId += 1;
+  elements.folderReadme.classList.add("hidden");
+  elements.folderReadme.replaceChildren();
+  elements.folderReadme.setAttribute("aria-busy", "false");
 }
 
 async function openFile(file) {
