@@ -1,0 +1,202 @@
+[
+  {
+    "name": "New Member Information",
+    "file": "New-member-Information.md",
+    "folder": "",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1905,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Defending Your Phd Thesis",
+    "file": "PHD-Thesis/Defending-your-PhD-thesis.md",
+    "folder": "PHD-Thesis",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 7151,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Handing In Your Phd Thesis",
+    "file": "PHD-Thesis/Handing-in-your-PhD-Thesis.md",
+    "folder": "PHD-Thesis",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 8267,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Publishing Your Phd Thesis",
+    "file": "PHD-Thesis/Publishing-your-PhD-thesis.md",
+    "folder": "PHD-Thesis",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1161,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Readme",
+    "file": "README.md",
+    "folder": "",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 872,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Learning About A New Area Of Cryptography",
+    "file": "Reasearch/Learning-about-a-new-area-of-cryptography.md",
+    "folder": "Reasearch",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 304,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Advising Student Theses",
+    "file": "Teaching/Advising-Student-Theses.md",
+    "folder": "Teaching",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 8604,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Preparing Slides",
+    "file": "Teaching/Preparing-Slides.md",
+    "folder": "Teaching",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1042,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Seminar Theses Organization And Processes",
+    "file": "Teaching/Seminar-Theses-Organization-and-Processes.md",
+    "folder": "Teaching",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 12931,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Submitting Grades To The Examination Office",
+    "file": "Teaching/Submitting-Grades-to-the-Examination-Office.md",
+    "folder": "Teaching",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1164,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Auftragsformular Druck Ocon ",
+    "file": "uploads/910c88963a5a70723998b1736a070f33/Auftragsformular-Druck-OCON-.pdf",
+    "folder": "uploads/910c88963a5a70723998b1736a070f33",
+    "type": "pdf",
+    "description": "",
+    "tags": [],
+    "size": 377726,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Booking A Room",
+    "file": "useful-information/booking-a-room.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 678,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Managing Your Physical Key",
+    "file": "useful-information/Managing-your-physical-key.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 8437,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Ordering Work Related Items",
+    "file": "useful-information/ordering-work-related-items.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 859,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Sending Documents Via Hauspost",
+    "file": "useful-information/Sending-documents-via-Hauspost.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 717,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Staff Training In Work Safety And It Security",
+    "file": "useful-information/Staff-Training-in-Work-Safety-and-IT-Security.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1644,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Updating Personenverzeichnis",
+    "file": "useful-information/updating-personenverzeichnis.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 2155,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Useful Contacts",
+    "file": "useful-information/useful-contacts.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 380,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Vacation Info",
+    "file": "useful-information/vacation-info.md",
+    "folder": "useful-information",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1082,
+    "date": "2026-10-06"
+  },
+  {
+    "name": "Overtime Compensation",
+    "file": "Working Time and Leave/Overtime-compensation.md",
+    "folder": "Working Time and Leave",
+    "type": "markdown",
+    "description": "",
+    "tags": [],
+    "size": 1978,
+    "date": "2026-10-06"
+  }
+]
