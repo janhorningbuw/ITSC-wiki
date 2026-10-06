@@ -1,9 +1,8 @@
-# ITSC-Wiki
+# Welcome!
 
-Willkommen in der zentralen Dokumentenablage. Wähle einen Ordner oder ein Dokument aus, um den zugehörigen Inhalt anzuzeigen.
+This is the field manual of the ITSC Research Group at the University of Wuppertal. Our passwords are long, our proofs are longer. This field manual is your survival guide to life in our cryptography research group: part handbook, part ritual scroll, part group therapy journal. Inside, you'll find everything you never realized you needed.
 
-## Hinweise
+**This manual is a collaborative effort. If something important, useful, or just plain ridiculous is missing, then please add it.**
 
-- Ordner bündeln thematisch zusammengehörige Dokumente.
-- Über die Suche können Dokumentnamen, Beschreibungen und Stichwörter gefunden werden.
-- Die Filter grenzen die Ansicht auf HTML-, PDF- oder Markdown-Dateien ein.
+This Wiki is supposed to be a place where we can collect all information that could be interesting for all members of the group. This information can concern certain research projects (e.g., work flows that could be interesting for future use of the project or that could be used in another context) or general organizational information (e.g., a collection of useful phone numbers).
+

@@ -1,0 +1,2 @@
+ # Getting an overview about a new area
+ - [Connected Papers](https://www.connectedpapers.com/) shows you a graph of relevant (by citations) papers that are cited and cite a paper you specify. This can be very useful in finding out about the relevant papers in an area you don't have experience with yet.
